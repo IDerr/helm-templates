@@ -21,6 +21,20 @@ spec:
         - path:
             type: PathPrefix
             value: {{ .Values.httpRoute.path | default "/" | quote }}
+      {{- if .Values.httpRoute.forwardedHeaders.enabled }}
+      filters:
+        - type: RequestHeaderModifier
+          requestHeaderModifier:
+            set:
+              - name: X-Forwarded-Proto
+                value: {{ .Values.httpRoute.forwardedHeaders.proto | quote }}
+              - name: X-Forwarded-Host
+                value: {{ .Values.httpRoute.forwardedHeaders.host | default .Values.httpRoute.hostname | quote }}
+              - name: X-Forwarded-Port
+                value: {{ .Values.httpRoute.forwardedHeaders.port | quote }}
+              - name: X-Forwarded-Ssl
+                value: {{ .Values.httpRoute.forwardedHeaders.ssl | quote }}
+      {{- end }}
       backendRefs:
         - kind: Service
           name: {{ include "opencloud.fullname" . }}

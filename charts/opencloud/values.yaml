@@ -29,6 +29,12 @@ httpRoute:
     name: public-gateway
     namespace: gateway-system
   path: /
+  forwardedHeaders:
+    enabled: true
+    proto: https
+    host: ""
+    port: "443"
+    ssl: "on"
   allowGatewayTraffic: true
   gatewayTrafficPort: 9200
 
