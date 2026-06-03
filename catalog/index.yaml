@@ -14,3 +14,14 @@ spec:
       versions:
         - version: 1.0.0
           definition: catalog/apps/hello-world/1.0.0.yaml
+    - name: opencloud
+      title: OpenCloud
+      summary: Single-container OpenCloud file sharing deployment for marketplace smoke tests.
+      categories:
+        - collaboration
+        - storage
+        - web
+      latestVersion: 1.0.0
+      versions:
+        - version: 1.0.0
+          definition: catalog/apps/opencloud/1.0.0.yaml

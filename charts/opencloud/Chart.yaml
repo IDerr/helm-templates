@@ -1,0 +1,11 @@
+apiVersion: v2
+name: opencloud
+description: Single-container OpenCloud chart for CloudZero marketplace smoke tests.
+type: application
+version: 0.1.0
+appVersion: "6.2.0"
+home: https://opencloud.eu
+sources:
+  - https://github.com/opencloud-eu/opencloud
+  - https://github.com/opencloud-eu/opencloud-compose
+  - https://github.com/opencloud-eu/helm

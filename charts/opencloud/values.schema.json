@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "replicaCount": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1
+    },
+    "opencloud": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "maxLength": 253
+        },
+        "adminPassword": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 128
+        },
+        "insecure": {
+          "type": "boolean"
+        },
+        "createDemoUsers": {
+          "type": "boolean"
+        },
+        "enableBasicAuth": {
+          "type": "boolean"
+        }
+      }
+    },
+    "httpRoute": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "hostname": {
+          "type": "string",
+          "maxLength": 253
+        }
+      }
+    },
+    "persistence": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

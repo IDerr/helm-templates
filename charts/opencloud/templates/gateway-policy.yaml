@@ -1,0 +1,21 @@
+{{- if and .Values.httpRoute.enabled .Values.httpRoute.allowGatewayTraffic }}
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: {{ include "opencloud.fullname" . }}-gateway
+  labels:
+    {{- include "opencloud.labels" . | nindent 4 }}
+spec:
+  endpointSelector:
+    matchLabels:
+      {{- include "opencloud.selectorLabels" . | nindent 6 }}
+  ingress:
+    - fromEntities:
+        - cluster
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+            - port: {{ .Values.httpRoute.gatewayTrafficPort | default .Values.service.targetPort | quote }}
+              protocol: TCP
+{{- end }}

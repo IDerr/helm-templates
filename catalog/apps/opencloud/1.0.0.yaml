@@ -1,0 +1,52 @@
+apiVersion: catalog.cloudzero.io/v1
+kind: AppDefinition
+metadata:
+  name: opencloud
+  version: 1.0.0
+spec:
+  display:
+    title: OpenCloud
+    summary: Single-container OpenCloud file sharing deployment for marketplace smoke tests.
+    categories:
+      - collaboration
+      - storage
+      - web
+  source:
+    repoURL: https://github.com/IDerr/helm-templates.git
+    path: charts/opencloud
+    targetRevision: main
+  defaults:
+    replicaCount: 1
+    opencloud:
+      adminPassword: admin
+      checkForUpdates: false
+  schema:
+    type: object
+    properties:
+      opencloud:
+        type: object
+        title: OpenCloud
+        properties:
+          adminPassword:
+            type: string
+            title: Initial admin password
+            default: admin
+            minLength: 5
+            maxLength: 128
+          createDemoUsers:
+            type: boolean
+            title: Create demo users
+            default: false
+      persistence:
+        type: object
+        title: Storage
+        properties:
+          data:
+            type: object
+            properties:
+              size:
+                type: string
+                title: Data volume size
+                default: 10Gi
+  requires: []
+  wiring: {}

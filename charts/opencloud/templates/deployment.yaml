@@ -1,0 +1,119 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "opencloud.fullname" . }}
+  labels:
+    {{- include "opencloud.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "opencloud.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "opencloud.selectorLabels" . | nindent 8 }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: opencloud
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+          args:
+            - opencloud init || true; opencloud server
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+          env:
+            - name: OC_URL
+              value: {{ include "opencloud.url" . | quote }}
+            - name: OC_INSECURE
+              value: {{ .Values.opencloud.insecure | quote }}
+            - name: PROXY_TLS
+              value: "false"
+            - name: PROXY_HTTP_ADDR
+              value: "0.0.0.0:{{ .Values.service.targetPort }}"
+            - name: IDM_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "opencloud.fullname" . }}
+                  key: admin-password
+            - name: IDM_CREATE_DEMO_USERS
+              value: {{ .Values.opencloud.createDemoUsers | quote }}
+            - name: PROXY_ENABLE_BASIC_AUTH
+              value: {{ .Values.opencloud.enableBasicAuth | quote }}
+            - name: OC_LOG_LEVEL
+              value: {{ .Values.opencloud.logLevel | quote }}
+            - name: OC_LOG_COLOR
+              value: {{ .Values.opencloud.prettyLogs | quote }}
+            - name: OC_LOG_PRETTY
+              value: {{ .Values.opencloud.prettyLogs | quote }}
+            - name: FRONTEND_CHECK_FOR_UPDATES
+              value: {{ .Values.opencloud.checkForUpdates | quote }}
+            - name: OC_DEFAULT_LANGUAGE
+              value: {{ .Values.opencloud.defaultLanguage | quote }}
+            - name: OC_ADD_RUN_SERVICES
+              value: {{ .Values.opencloud.additionalServices | quote }}
+          startupProbe:
+            tcpSocket:
+              port: http
+            failureThreshold: 60
+            periodSeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: opencloud-config
+              mountPath: /etc/opencloud
+            - name: opencloud-data
+              mountPath: /var/lib/opencloud
+      volumes:
+        - name: opencloud-config
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "opencloud.fullname" . }}-config
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: opencloud-data
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "opencloud.fullname" . }}-data
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

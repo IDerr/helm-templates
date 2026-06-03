@@ -1,0 +1,55 @@
+replicaCount: 1
+
+image:
+  repository: opencloudeu/opencloud-rolling
+  tag: "6.2.0"
+  pullPolicy: IfNotPresent
+
+opencloud:
+  url: ""
+  adminPassword: admin
+  insecure: false
+  logLevel: info
+  prettyLogs: false
+  createDemoUsers: false
+  enableBasicAuth: false
+  checkForUpdates: false
+  defaultLanguage: en
+  additionalServices: ""
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 9200
+
+httpRoute:
+  enabled: false
+  hostname: ""
+  gateway:
+    name: public-gateway
+    namespace: gateway-system
+  path: /
+  allowGatewayTraffic: true
+  gatewayTrafficPort: 9200
+
+persistence:
+  enabled: true
+  storageClass: ""
+  config:
+    size: 100Mi
+  data:
+    size: 10Gi
+
+podAnnotations: {}
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
