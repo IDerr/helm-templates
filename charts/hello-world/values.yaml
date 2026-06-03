@@ -1,0 +1,30 @@
+replicaCount: 1
+
+image:
+  repository: nginxinc/nginx-unprivileged
+  tag: 1.27-alpine
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+page:
+  title: Hello from CloudZero
+  heading: Hello from CloudZero Apps
+  body: This private app was installed through the CloudZero marketplace.
+  accentColor: "#2563eb"
+
+podAnnotations: {}
+
+resources:
+  requests:
+    cpu: 25m
+    memory: 64Mi
+  limits:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

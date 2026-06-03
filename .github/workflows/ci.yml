@@ -1,0 +1,30 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  helm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
+      - name: Lint charts
+        shell: bash
+        run: |
+          set -euo pipefail
+          for chart in charts/*; do
+            [ -f "$chart/Chart.yaml" ] || continue
+            helm lint "$chart"
+          done
+      - name: Render charts
+        shell: bash
+        run: |
+          set -euo pipefail
+          for chart in charts/*; do
+            [ -f "$chart/Chart.yaml" ] || continue
+            helm template smoke "$chart" > "/tmp/$(basename "$chart").yaml"
+          done

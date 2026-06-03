@@ -1,0 +1,16 @@
+apiVersion: catalog.cloudzero.io/v1
+kind: CatalogIndex
+metadata:
+  name: cloudzero-apps
+spec:
+  apps:
+    - name: hello-world
+      title: Hello World
+      summary: Minimal private web app for validating CloudZero marketplace installs.
+      categories:
+        - smoke-test
+        - web
+      latestVersion: 1.0.0
+      versions:
+        - version: 1.0.0
+          definition: catalog/apps/hello-world/1.0.0.yaml
