@@ -16,6 +16,8 @@ httpRoute:
     name: public-gateway
     namespace: gateway-system
   path: /
+  allowGatewayTraffic: true
+  gatewayTrafficPort: 8080
 
 page:
   title: Hello from CloudZero
