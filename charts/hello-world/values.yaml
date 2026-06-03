@@ -9,6 +9,14 @@ service:
   type: ClusterIP
   port: 80
 
+httpRoute:
+  enabled: false
+  hostname: ""
+  gateway:
+    name: public-gateway
+    namespace: gateway-system
+  path: /
+
 page:
   title: Hello from CloudZero
   heading: Hello from CloudZero Apps
