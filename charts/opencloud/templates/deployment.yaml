@@ -6,6 +6,8 @@ metadata:
     {{- include "opencloud.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       {{- include "opencloud.selectorLabels" . | nindent 6 }}
