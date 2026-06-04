@@ -1,0 +1,66 @@
+apiVersion: catalog.cloudzero.io/v1
+kind: AppDefinition
+metadata:
+  name: flamenco
+  version: 1.0.0
+spec:
+  display:
+    title: Flamenco
+    summary: Blender render farm manager with a colocated CPU worker for first render-farm demos.
+    categories:
+      - creative
+      - render-farm
+      - blender
+      - web
+  source:
+    repoURL: https://github.com/IDerr/helm-templates.git
+    path: charts/flamenco
+    targetRevision: main
+  defaults:
+    replicaCount: 1
+    worker:
+      enabled: true
+    persistence:
+      enabled: true
+      shared:
+        size: 20Gi
+  schema:
+    type: object
+    properties:
+      flamenco:
+        type: object
+        title: Flamenco
+        properties:
+          managerName:
+            type: string
+            title: Manager name
+            default: CloudZero Flamenco
+          blenderPath:
+            type: string
+            title: Blender executable
+            default: blender
+          blenderArgs:
+            type: string
+            title: Blender arguments
+            default: "-b -y"
+      worker:
+        type: object
+        title: Worker
+        properties:
+          enabled:
+            type: boolean
+            title: Start colocated worker
+            default: true
+      persistence:
+        type: object
+        title: Storage
+        properties:
+          shared:
+            type: object
+            properties:
+              size:
+                type: string
+                title: Shared render storage size
+                default: 20Gi
+  requires: []
+  wiring: {}

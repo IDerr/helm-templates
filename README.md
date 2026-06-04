@@ -20,3 +20,11 @@ single-container development deployment shape: one OpenCloud container,
 config/data PVCs, and optional Gateway API exposure. It deliberately does
 not vendor OpenCloud's production stack with Keycloak, PostgreSQL, MinIO,
 and office integrations yet.
+
+## Flamenco
+
+`flamenco` deploys Blender's Flamenco Manager with a colocated CPU worker
+for render-farm demos. Manager state and shared render storage are PVC-backed.
+The first chart slice keeps Manager and Worker in one pod so it works with
+ReadWriteOnce storage; a later version can split Workers into a scalable
+Deployment once RWX shared storage is available.

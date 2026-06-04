@@ -1,0 +1,164 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "flamenco.fullname" . }}
+  labels:
+    {{- include "flamenco.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "flamenco.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "flamenco.selectorLabels" . | nindent 8 }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        fsGroupChangePolicy: OnRootMismatch
+      initContainers:
+        - name: seed-config
+          image: {{ include "flamenco.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+          args:
+            - |
+              set -eu
+              mkdir -p /home/flamenco {{ .Values.flamenco.sharedStoragePath }}
+              if [ ! -f /home/flamenco/flamenco-manager.yaml ]; then
+                cp /config/flamenco-manager.yaml /home/flamenco/flamenco-manager.yaml
+              fi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: manager-home
+              mountPath: /home/flamenco
+            - name: shared-storage
+              mountPath: {{ .Values.flamenco.sharedStoragePath }}
+            - name: config
+              mountPath: /config
+              readOnly: true
+      containers:
+        - name: manager
+          image: {{ include "flamenco.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          startupProbe:
+            tcpSocket:
+              port: http
+            failureThreshold: 60
+            periodSeconds: 5
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: manager-home
+              mountPath: /home/flamenco
+            - name: shared-storage
+              mountPath: {{ .Values.flamenco.sharedStoragePath }}
+        {{- if .Values.worker.enabled }}
+        - name: worker
+          image: {{ include "flamenco.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+          args:
+            - |
+              set -eu
+              cp /config/flamenco-worker.yaml /home/flamenco-worker/flamenco-worker.yaml
+              cd /home/flamenco-worker
+              until curl -fsS http://127.0.0.1:{{ .Values.service.targetPort }}/ >/dev/null; do
+                sleep 2
+              done
+              exec flamenco-worker -manager http://127.0.0.1:{{ .Values.service.targetPort }}/
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: FLAMENCO_HOME
+              value: /home/flamenco-worker/state
+            - name: FLAMENCO_WORKER_NAME
+              value: "$(POD_NAME)-worker"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            {{- toYaml .Values.worker.resources | nindent 12 }}
+          volumeMounts:
+            - name: worker-home
+              mountPath: /home/flamenco-worker
+            - name: shared-storage
+              mountPath: {{ .Values.flamenco.sharedStoragePath }}
+            - name: config
+              mountPath: /config
+              readOnly: true
+        {{- end }}
+      volumes:
+        - name: manager-home
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "flamenco.fullname" . }}-manager
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: shared-storage
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "flamenco.fullname" . }}-shared
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: worker-home
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: {{ include "flamenco.fullname" . }}-config
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,82 @@
+replicaCount: 1
+
+image:
+  repository: sweettastebuds/flamenco-docker-server
+  tag: latest
+  pullPolicy: IfNotPresent
+
+flamenco:
+  managerName: CloudZero Flamenco
+  database: /home/flamenco/flamenco-manager.sqlite
+  localManagerStoragePath: /home/flamenco/flamenco-manager-storage
+  sharedStoragePath: /shared/flamenco
+  blenderPath: blender
+  blenderArgs: "-b -y"
+  taskTimeout: 10m0s
+  workerTimeout: 1m0s
+  blocklistThreshold: 3
+  taskFailAfterSoftfailCount: 3
+  shaman:
+    enabled: true
+    garbageCollect:
+      period: 24h0m0s
+      maxAge: 744h0m0s
+
+worker:
+  enabled: true
+  taskTypes:
+    - blender
+    - ffmpeg
+    - file-management
+    - misc
+  oomScoreAdjust: 500
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: "2"
+      memory: 4Gi
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+httpRoute:
+  enabled: false
+  hostname: ""
+  gateway:
+    name: public-gateway
+    namespace: gateway-system
+  path: /
+  forwardedHeaders:
+    enabled: true
+    proto: https
+    host: ""
+    port: "443"
+    ssl: "on"
+  allowGatewayTraffic: true
+  gatewayTrafficPort: 8080
+
+persistence:
+  enabled: true
+  storageClass: ""
+  manager:
+    size: 1Gi
+  shared:
+    size: 20Gi
+
+podAnnotations: {}
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

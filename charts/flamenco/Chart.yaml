@@ -1,0 +1,6 @@
+apiVersion: v2
+name: flamenco
+description: Blender Flamenco render farm manager with an in-pod CPU worker.
+type: application
+version: 1.0.0
+appVersion: "3.2"

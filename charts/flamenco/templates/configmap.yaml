@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "flamenco.fullname" . }}-config
+  labels:
+    {{- include "flamenco.labels" . | nindent 4 }}
+data:
+  flamenco-manager.yaml: |
+    _meta:
+      version: 3
+    manager_name: {{ .Values.flamenco.managerName | quote }}
+    database: {{ .Values.flamenco.database | quote }}
+    listen: ":{{ .Values.service.targetPort }}"
+    autodiscoverable: false
+    local_manager_storage_path: {{ .Values.flamenco.localManagerStoragePath | quote }}
+    shared_storage_path: {{ .Values.flamenco.sharedStoragePath | quote }}
+    shaman:
+      enabled: {{ .Values.flamenco.shaman.enabled }}
+      garbageCollect:
+        period: {{ .Values.flamenco.shaman.garbageCollect.period | quote }}
+        maxAge: {{ .Values.flamenco.shaman.garbageCollect.maxAge | quote }}
+        extraCheckoutPaths: []
+    task_timeout: {{ .Values.flamenco.taskTimeout | quote }}
+    worker_timeout: {{ .Values.flamenco.workerTimeout | quote }}
+    blocklist_threshold: {{ .Values.flamenco.blocklistThreshold }}
+    task_fail_after_softfail_count: {{ .Values.flamenco.taskFailAfterSoftfailCount }}
+    variables:
+      blender:
+        values:
+          - audience: all
+            platform: linux
+            value: {{ .Values.flamenco.blenderPath | quote }}
+          - audience: all
+            platform: windows
+            value: blender.exe
+          - audience: all
+            platform: darwin
+            value: blender
+      blenderArgs:
+        values:
+          - audience: all
+            platform: all
+            value: {{ .Values.flamenco.blenderArgs | quote }}
+  flamenco-worker.yaml: |
+    manager_url: http://127.0.0.1:{{ .Values.service.targetPort }}/
+    task_types:
+    {{- range .Values.worker.taskTypes }}
+      - {{ . | quote }}
+    {{- end }}
+    restart_exit_code: 47
+    oom_score_adjust: {{ .Values.worker.oomScoreAdjust }}
