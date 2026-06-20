@@ -23,8 +23,8 @@ and office integrations yet.
 
 ## Flamenco
 
-`flamenco` deploys Blender's Flamenco Manager with a colocated CPU worker
-for render-farm demos. Manager state and shared render storage are PVC-backed.
-The first chart slice keeps Manager and Worker in one pod so it works with
-ReadWriteOnce storage; a later version can split Workers into a scalable
-Deployment once RWX shared storage is available.
+`flamenco` deploys Blender's Flamenco Manager with a separately scalable CPU
+worker Deployment for render-farm demos. Manager state and shared render storage
+are PVC-backed. The chart defaults the shared PVC to ReadWriteOnce and
+co-locates workers with the manager; set shared storage to ReadWriteMany when
+the cluster has RWX storage and workers should spread more freely.

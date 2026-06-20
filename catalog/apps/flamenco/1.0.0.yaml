@@ -6,7 +6,7 @@ metadata:
 spec:
   display:
     title: Flamenco
-    summary: Blender render farm manager with a colocated CPU worker for first render-farm demos.
+    summary: Blender render farm manager with editable CPU worker count and sizing.
     categories:
       - creative
       - render-farm
@@ -20,47 +20,139 @@ spec:
     replicaCount: 1
     worker:
       enabled: true
+      replicas: 1
+      resources:
+        requests:
+          cpu: "1"
+          memory: 2Gi
+        limits:
+          cpu: "1"
+          memory: 2Gi
     persistence:
       enabled: true
       shared:
         size: 20Gi
-  schema:
-    type: object
-    properties:
-      flamenco:
-        type: object
-        title: Flamenco
-        properties:
-          managerName:
-            type: string
-            title: Manager name
-            default: CloudZero Flamenco
-          blenderPath:
-            type: string
-            title: Blender executable
-            default: blender
-          blenderArgs:
-            type: string
-            title: Blender arguments
-            default: "-b -y"
-      worker:
-        type: object
-        title: Worker
-        properties:
-          enabled:
-            type: boolean
-            title: Start colocated worker
-            default: true
-      persistence:
-        type: object
-        title: Storage
-        properties:
-          shared:
-            type: object
-            properties:
-              size:
-                type: string
-                title: Shared render storage size
-                default: 20Gi
+  install:
+    fields:
+      - key: managerName
+        type: string
+        label: Manager name
+        section: Flamenco
+        default: CloudZero Flamenco
+        required: true
+        minLength: 1
+        maxLength: 80
+      - key: blenderPath
+        type: string
+        label: Blender executable
+        section: Flamenco
+        default: blender
+        required: true
+        minLength: 1
+        maxLength: 256
+      - key: blenderArgs
+        type: string
+        label: Blender arguments
+        section: Flamenco
+        default: "-b -y"
+        maxLength: 256
+      - key: workerEnabled
+        type: boolean
+        label: Start workers
+        section: Workers
+        default: true
+      - key: workerReplicas
+        type: integer
+        label: Worker count
+        section: Workers
+        default: 1
+        minimum: 0
+        maximum: 20
+      - key: workerCpu
+        type: string
+        label: Worker CPU
+        section: Workers
+        default: "1"
+        enum: ["500m", "1", "2", "4"]
+      - key: workerMemory
+        type: string
+        label: Worker memory
+        section: Workers
+        default: 2Gi
+        enum: ["1Gi", "2Gi", "4Gi", "8Gi"]
+      - key: sharedStorageSize
+        type: string
+        label: Shared render storage
+        section: Storage
+        default: 20Gi
+        pattern: "^[0-9]+(Mi|Gi)$"
+    values:
+      - from: fields.managerName
+        to: flamenco.managerName
+      - from: fields.blenderPath
+        to: flamenco.blenderPath
+      - from: fields.blenderArgs
+        to: flamenco.blenderArgs
+      - from: fields.workerEnabled
+        to: worker.enabled
+      - from: fields.workerReplicas
+        to: worker.replicas
+      - from: fields.workerCpu
+        to:
+          - worker.resources.requests.cpu
+          - worker.resources.limits.cpu
+      - from: fields.workerMemory
+        to:
+          - worker.resources.requests.memory
+          - worker.resources.limits.memory
+      - from: fields.sharedStorageSize
+        to: persistence.shared.size
+  edit:
+    fields:
+      - key: workerEnabled
+        type: boolean
+        label: Run workers
+        section: Workers
+        default: true
+      - key: workerReplicas
+        type: integer
+        label: Worker count
+        section: Workers
+        default: 1
+        minimum: 0
+        maximum: 20
+      - key: workerCpu
+        type: string
+        label: Worker CPU
+        section: Workers
+        default: "1"
+        enum: ["500m", "1", "2", "4"]
+      - key: workerMemory
+        type: string
+        label: Worker memory
+        section: Workers
+        default: 2Gi
+        enum: ["1Gi", "2Gi", "4Gi", "8Gi"]
+      - key: sharedStorageSize
+        type: string
+        label: Shared render storage
+        section: Storage
+        default: 20Gi
+        pattern: "^[0-9]+(Mi|Gi)$"
+    values:
+      - from: fields.workerEnabled
+        to: worker.enabled
+      - from: fields.workerReplicas
+        to: worker.replicas
+      - from: fields.workerCpu
+        to:
+          - worker.resources.requests.cpu
+          - worker.resources.limits.cpu
+      - from: fields.workerMemory
+        to:
+          - worker.resources.requests.memory
+          - worker.resources.limits.memory
+      - from: fields.sharedStorageSize
+        to: persistence.shared.size
   requires: []
   wiring: {}

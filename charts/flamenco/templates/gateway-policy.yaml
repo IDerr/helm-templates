@@ -9,6 +9,7 @@ spec:
   endpointSelector:
     matchLabels:
       {{- include "flamenco.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: manager
   ingress:
     - fromEntities:
         - cluster

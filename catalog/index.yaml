@@ -27,7 +27,7 @@ spec:
           definition: catalog/apps/opencloud/1.0.0.yaml
     - name: flamenco
       title: Flamenco
-      summary: Blender render farm manager with a colocated CPU worker for first render-farm demos.
+      summary: Blender render farm manager with editable CPU worker count and sizing.
       categories:
         - creative
         - render-farm

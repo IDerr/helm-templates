@@ -24,6 +24,7 @@ flamenco:
 
 worker:
   enabled: true
+  replicas: 1
   taskTypes:
     - blender
     - ffmpeg
@@ -37,6 +38,10 @@ worker:
     limits:
       cpu: "2"
       memory: 4Gi
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
 
 service:
   type: ClusterIP
@@ -63,8 +68,10 @@ persistence:
   enabled: true
   storageClass: ""
   manager:
+    accessMode: ReadWriteOnce
     size: 1Gi
   shared:
+    accessMode: ReadWriteOnce
     size: 20Gi
 
 podAnnotations: {}

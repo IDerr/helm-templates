@@ -7,7 +7,7 @@ metadata:
     {{- include "flamenco.labels" . | nindent 4 }}
 spec:
   accessModes:
-    - ReadWriteOnce
+    - {{ .Values.persistence.manager.accessMode | default "ReadWriteOnce" }}
   resources:
     requests:
       storage: {{ .Values.persistence.manager.size | quote }}
@@ -23,7 +23,7 @@ metadata:
     {{- include "flamenco.labels" . | nindent 4 }}
 spec:
   accessModes:
-    - ReadWriteOnce
+    - {{ .Values.persistence.shared.accessMode | default "ReadWriteOnce" }}
   resources:
     requests:
       storage: {{ .Values.persistence.shared.size | quote }}

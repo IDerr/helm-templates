@@ -42,7 +42,7 @@ data:
             platform: all
             value: {{ .Values.flamenco.blenderArgs | quote }}
   flamenco-worker.yaml: |
-    manager_url: http://127.0.0.1:{{ .Values.service.targetPort }}/
+    manager_url: http://{{ include "flamenco.fullname" . }}:{{ .Values.service.port }}/
     task_types:
     {{- range .Values.worker.taskTypes }}
       - {{ . | quote }}

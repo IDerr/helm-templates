@@ -11,10 +11,12 @@ spec:
   selector:
     matchLabels:
       {{- include "flamenco.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: manager
   template:
     metadata:
       labels:
         {{- include "flamenco.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: manager
       {{- with .Values.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
@@ -89,47 +91,6 @@ spec:
               mountPath: /home/flamenco
             - name: shared-storage
               mountPath: {{ .Values.flamenco.sharedStoragePath }}
-        {{- if .Values.worker.enabled }}
-        - name: worker
-          image: {{ include "flamenco.image" . | quote }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command:
-            - /bin/sh
-            - -c
-          args:
-            - |
-              set -eu
-              cp /config/flamenco-worker.yaml /home/flamenco-worker/flamenco-worker.yaml
-              cd /home/flamenco-worker
-              until curl -fsS http://127.0.0.1:{{ .Values.service.targetPort }}/ >/dev/null; do
-                sleep 2
-              done
-              exec flamenco-worker -manager http://127.0.0.1:{{ .Values.service.targetPort }}/
-          env:
-            - name: POD_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-            - name: FLAMENCO_HOME
-              value: /home/flamenco-worker/state
-            - name: FLAMENCO_WORKER_NAME
-              value: "$(POD_NAME)-worker"
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
-          resources:
-            {{- toYaml .Values.worker.resources | nindent 12 }}
-          volumeMounts:
-            - name: worker-home
-              mountPath: /home/flamenco-worker
-            - name: shared-storage
-              mountPath: {{ .Values.flamenco.sharedStoragePath }}
-            - name: config
-              mountPath: /config
-              readOnly: true
-        {{- end }}
       volumes:
         - name: manager-home
           {{- if .Values.persistence.enabled }}
@@ -145,8 +106,6 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
-        - name: worker-home
-          emptyDir: {}
         - name: config
           configMap:
             name: {{ include "flamenco.fullname" . }}-config

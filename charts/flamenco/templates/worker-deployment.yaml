@@ -1,0 +1,111 @@
+{{- if and .Values.worker.enabled (gt (int .Values.worker.replicas) 0) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "flamenco.fullname" . }}-worker
+  labels:
+    {{- include "flamenco.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker
+spec:
+  replicas: {{ .Values.worker.replicas }}
+  selector:
+    matchLabels:
+      {{- include "flamenco.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: worker
+  template:
+    metadata:
+      labels:
+        {{- include "flamenco.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: worker
+      {{- with .Values.worker.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        fsGroupChangePolicy: OnRootMismatch
+      containers:
+        - name: worker
+          image: {{ include "flamenco.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+          args:
+            - |
+              set -eu
+              cp /config/flamenco-worker.yaml /home/flamenco-worker/flamenco-worker.yaml
+              cd /home/flamenco-worker
+              until curl -fsS http://{{ include "flamenco.fullname" . }}:{{ .Values.service.port }}/ >/dev/null; do
+                sleep 2
+              done
+              exec flamenco-worker -manager http://{{ include "flamenco.fullname" . }}:{{ .Values.service.port }}/
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: FLAMENCO_HOME
+              value: /home/flamenco-worker/state
+            - name: FLAMENCO_WORKER_NAME
+              value: "$(POD_NAME)"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            {{- toYaml .Values.worker.resources | nindent 12 }}
+          volumeMounts:
+            - name: worker-home
+              mountPath: /home/flamenco-worker
+            - name: shared-storage
+              mountPath: {{ .Values.flamenco.sharedStoragePath }}
+            - name: config
+              mountPath: /config
+              readOnly: true
+      volumes:
+        - name: worker-home
+          emptyDir: {}
+        - name: shared-storage
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "flamenco.fullname" . }}-shared
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: config
+          configMap:
+            name: {{ include "flamenco.fullname" . }}-config
+      {{- $nodeSelector := default .Values.nodeSelector .Values.worker.nodeSelector }}
+      {{- with $nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.worker.affinity }}
+      affinity:
+        {{- toYaml .Values.worker.affinity | nindent 8 }}
+      {{- else if and .Values.persistence.enabled (eq .Values.persistence.shared.accessMode "ReadWriteOnce") }}
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  {{- include "flamenco.selectorLabels" . | nindent 18 }}
+                  app.kubernetes.io/component: manager
+              topologyKey: kubernetes.io/hostname
+      {{- else if .Values.affinity }}
+      affinity:
+        {{- toYaml .Values.affinity | nindent 8 }}
+      {{- end }}
+      {{- $tolerations := default .Values.tolerations .Values.worker.tolerations }}
+      {{- with $tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
