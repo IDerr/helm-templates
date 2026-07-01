@@ -1,0 +1,72 @@
+apiVersion: catalog.cloudzero.io/v1
+kind: AppDefinition
+metadata:
+  name: uptime-kuma
+  version: 1.0.0
+spec:
+  display:
+    title: Uptime Kuma
+    summary: Beautiful self-hosted uptime monitoring and status pages.
+    categories:
+      - monitoring
+      - observability
+      - web
+  source:
+    repoURL: https://github.com/IDerr/helm-templates.git
+    path: charts/uptime-kuma
+    targetRevision: main
+  defaults:
+    replicaCount: 1
+    persistence:
+      enabled: true
+      data:
+        size: 2Gi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: "1"
+        memory: 512Mi
+  install:
+    fields:
+      - key: dataSize
+        type: string
+        label: Data storage size
+        section: Storage
+        default: 2Gi
+        required: true
+        pattern: "^[0-9]+(Mi|Gi)$"
+      - key: memoryLimit
+        type: string
+        label: Memory limit
+        section: Resources
+        default: 512Mi
+        enum: ["256Mi", "512Mi", "1Gi", "2Gi"]
+    values:
+      - from: fields.dataSize
+        to: persistence.data.size
+      - from: fields.memoryLimit
+        to: resources.limits.memory
+  edit:
+    fields:
+      - key: dataSize
+        type: string
+        label: Data storage size
+        section: Storage
+        default: 2Gi
+        required: true
+        pattern: "^[0-9]+(Mi|Gi)$"
+      - key: memoryLimit
+        type: string
+        label: Memory limit
+        section: Resources
+        default: 512Mi
+        enum: ["256Mi", "512Mi", "1Gi", "2Gi"]
+    values:
+      - from: fields.dataSize
+        to: persistence.data.size
+      - from: fields.memoryLimit
+        to: resources.limits.memory
+  requires: []
+  wiring: {}

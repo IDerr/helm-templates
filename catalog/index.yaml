@@ -37,3 +37,14 @@ spec:
       versions:
         - version: 1.0.0
           definition: catalog/apps/flamenco/1.0.0.yaml
+    - name: uptime-kuma
+      title: Uptime Kuma
+      summary: Beautiful self-hosted uptime monitoring and status pages.
+      categories:
+        - monitoring
+        - observability
+        - web
+      latestVersion: 1.0.0
+      versions:
+        - version: 1.0.0
+          definition: catalog/apps/uptime-kuma/1.0.0.yaml

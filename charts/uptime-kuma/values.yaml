@@ -1,0 +1,50 @@
+replicaCount: 1
+
+image:
+  repository: louislam/uptime-kuma
+  tag: "1"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3001
+
+# CloudZero injects httpRoute.enabled=true + hostname at install time to publish
+# the app through the shared public-gateway. Defaults keep it internal.
+httpRoute:
+  enabled: false
+  hostname: ""
+  gateway:
+    name: public-gateway
+    namespace: gateway-system
+  path: /
+  forwardedHeaders:
+    enabled: true
+    proto: https
+    host: ""
+    port: "443"
+    ssl: "on"
+  allowGatewayTraffic: true
+  gatewayTrafficPort: 3001
+
+persistence:
+  enabled: true
+  storageClass: ""
+  data:
+    accessMode: ReadWriteOnce
+    size: 2Gi
+
+podAnnotations: {}
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: "1"
+    memory: 512Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
