@@ -33,6 +33,12 @@ spec:
         - name: uptime-kuma
           image: {{ include "uptime-kuma.image" . | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          # Bypass the image entrypoint, which chowns /app/data on startup — that
+          # requires root/CAP_CHOWN and fails under runAsNonRoot + dropped caps.
+          # fsGroup already makes the mounted data dir group-writable.
+          command:
+            - node
+            - server/server.js
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
