@@ -18,6 +18,13 @@ spec:
     targetRevision: main
   defaults:
     replicaCount: 1
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
     worker:
       enabled: true
       replicas: 1
@@ -32,6 +39,16 @@ spec:
       enabled: true
       shared:
         size: 20Gi
+  quota:
+    units:
+      # Manager (single replica).
+      - cpuPath: resources.requests.cpu
+        memoryPath: resources.requests.memory
+      # CPU workers, multiplied by the editable replica count.
+      - replicasPath: worker.replicas
+        enabledPath: worker.enabled
+        cpuPath: worker.resources.requests.cpu
+        memoryPath: worker.resources.requests.memory
   install:
     fields:
       - key: managerName
@@ -67,7 +84,7 @@ spec:
         section: Workers
         default: 1
         minimum: 0
-        maximum: 20
+        maximum: 50
       - key: workerCpu
         type: string
         label: Worker CPU
@@ -120,7 +137,7 @@ spec:
         section: Workers
         default: 1
         minimum: 0
-        maximum: 20
+        maximum: 50
       - key: workerCpu
         type: string
         label: Worker CPU

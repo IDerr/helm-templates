@@ -37,6 +37,22 @@ spec:
     values: []
 ```
 
+An optional `quota` section teaches the CloudZero backend how to compute the
+app's requested CPU/memory from its values (no helm render needed) so installs
+and edits are checked against project quotas — each unit points at request
+paths, optionally multiplied by a replica path and gated by an enabled path:
+
+```yaml
+  quota:
+    units:
+      - cpuPath: resources.requests.cpu            # manager, 1 replica
+        memoryPath: resources.requests.memory
+      - replicasPath: worker.replicas              # workers, xN
+        enabledPath: worker.enabled
+        cpuPath: worker.resources.requests.cpu
+        memoryPath: worker.resources.requests.memory
+```
+
 Rules of thumb:
 
 - First-boot-only settings (initial passwords, seed users) go in `install` only —
