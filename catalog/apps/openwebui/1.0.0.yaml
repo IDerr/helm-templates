@@ -7,6 +7,7 @@ spec:
   display:
     title: Open WebUI
     summary: Self-hosted AI chat interface for OpenAI-compatible APIs and Ollama backends.
+    productVersion: "0.6"
     categories:
       - ai
       - chat

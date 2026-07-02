@@ -7,6 +7,7 @@ spec:
   display:
     title: OpenCloud
     summary: Single-container OpenCloud file sharing deployment for marketplace smoke tests.
+    productVersion: "2.4"
     categories:
       - collaboration
       - storage

@@ -2,12 +2,12 @@ apiVersion: catalog.cloudzero.io/v1
 kind: AppDefinition
 metadata:
   name: uptime-kuma
-  version: 1.0.0
+  version: 1.0.1
 spec:
   display:
     title: Uptime Kuma
     summary: Beautiful self-hosted uptime monitoring and status pages.
-    productVersion: "1.23.16"
+    productVersion: "1.23.17"
     categories:
       - monitoring
       - observability

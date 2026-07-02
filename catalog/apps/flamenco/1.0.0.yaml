@@ -7,6 +7,7 @@ spec:
   display:
     title: Flamenco
     summary: Blender render farm manager with editable CPU worker count and sizing.
+    productVersion: "3.6"
     categories:
       - creative
       - render-farm
