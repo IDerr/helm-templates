@@ -1,0 +1,68 @@
+apiVersion: catalog.cloudzero.io/v1
+kind: AppDefinition
+metadata:
+  name: excalidraw
+  version: 1.0.0
+spec:
+  display:
+    title: Excalidraw
+    summary: Virtual whiteboard for sketching hand-drawn like diagrams.
+    categories:
+      - creative
+      - whiteboard
+      - web
+  source:
+    repoURL: https://github.com/IDerr/helm-templates.git
+    path: charts/excalidraw
+    targetRevision: main
+  defaults:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+  install:
+    fields:
+      - key: replicas
+        type: integer
+        label: Replicas
+        section: Scaling
+        default: 1
+        minimum: 1
+        maximum: 3
+      - key: memoryLimit
+        type: string
+        label: Memory limit
+        section: Resources
+        default: 256Mi
+        enum: ["128Mi", "256Mi", "512Mi"]
+    values:
+      - from: fields.replicas
+        to: replicaCount
+      - from: fields.memoryLimit
+        to: resources.limits.memory
+  edit:
+    fields:
+      - key: replicas
+        type: integer
+        label: Replicas
+        section: Scaling
+        default: 1
+        minimum: 1
+        maximum: 3
+      - key: memoryLimit
+        type: string
+        label: Memory limit
+        section: Resources
+        default: 256Mi
+        enum: ["128Mi", "256Mi", "512Mi"]
+    values:
+      - from: fields.replicas
+        to: replicaCount
+      - from: fields.memoryLimit
+        to: resources.limits.memory
+  requires: []
+  wiring: {}

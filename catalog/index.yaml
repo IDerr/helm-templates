@@ -48,3 +48,14 @@ spec:
       versions:
         - version: 1.0.0
           definition: catalog/apps/uptime-kuma/1.0.0.yaml
+    - name: excalidraw
+      title: Excalidraw
+      summary: Virtual whiteboard for sketching hand-drawn like diagrams.
+      categories:
+        - creative
+        - whiteboard
+        - web
+      latestVersion: 1.0.0
+      versions:
+        - version: 1.0.0
+          definition: catalog/apps/excalidraw/1.0.0.yaml

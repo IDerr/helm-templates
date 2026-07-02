@@ -1,0 +1,42 @@
+replicaCount: 1
+
+# Official image is stock nginx (root, port 80). The chart overrides nginx.conf +
+# default.conf via ConfigMap so it runs unprivileged on 8080 with pid/temp files
+# in /tmp — same non-root posture as the other charts in this repo.
+image:
+  repository: excalidraw/excalidraw
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+# CloudZero injects httpRoute.enabled=true + hostname at install time to publish
+# the app through the shared public-gateway. Defaults keep it internal.
+httpRoute:
+  enabled: false
+  hostname: ""
+  gateway:
+    name: public-gateway
+    namespace: gateway-system
+  path: /
+  allowGatewayTraffic: true
+  gatewayTrafficPort: 8080
+
+# Stateless: drawings live in the browser (localStorage / export). No PVC.
+
+podAnnotations: {}
+
+resources:
+  requests:
+    cpu: 25m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
