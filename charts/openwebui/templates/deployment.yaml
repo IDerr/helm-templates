@@ -77,13 +77,14 @@ spec:
             - name: http
               containerPort: 8080
               protocol: TCP
-          # First boot runs DB migrations and warms caches — be generous.
+          # First boot runs DB migrations and imports heavy Python deps — on a
+          # slow CPU this exceeds 5 minutes, so allow up to 15.
           startupProbe:
             httpGet:
               path: /health
               port: http
-            failureThreshold: 60
-            periodSeconds: 5
+            failureThreshold: 90
+            periodSeconds: 10
           readinessProbe:
             httpGet:
               path: /health
