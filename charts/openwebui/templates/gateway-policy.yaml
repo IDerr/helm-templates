@@ -1,0 +1,22 @@
+{{- if and .Values.httpRoute.enabled .Values.httpRoute.allowGatewayTraffic }}
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: {{ include "openwebui.fullname" . }}-gateway
+  labels:
+    {{- include "openwebui.labels" . | nindent 4 }}
+spec:
+  endpointSelector:
+    matchLabels:
+      {{- include "openwebui.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: server
+  ingress:
+    - fromEntities:
+        - cluster
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+            - port: {{ .Values.httpRoute.gatewayTrafficPort | default .Values.service.targetPort | quote }}
+              protocol: TCP
+{{- end }}

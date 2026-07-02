@@ -59,3 +59,14 @@ spec:
       versions:
         - version: 1.0.0
           definition: catalog/apps/excalidraw/1.0.0.yaml
+    - name: openwebui
+      title: Open WebUI
+      summary: Self-hosted AI chat interface for OpenAI-compatible APIs and Ollama backends.
+      categories:
+        - ai
+        - chat
+        - web
+      latestVersion: 1.0.0
+      versions:
+        - version: 1.0.0
+          definition: catalog/apps/openwebui/1.0.0.yaml

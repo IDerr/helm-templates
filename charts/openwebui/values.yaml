@@ -1,0 +1,59 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/open-webui/open-webui
+  tag: main
+  pullPolicy: IfNotPresent
+
+# Model providers. Open WebUI can talk to any OpenAI-compatible API and/or an
+# Ollama server (e.g. one running in a CloudZero VM). When a provider is left
+# empty the corresponding integration is disabled so the UI doesn't error on a
+# dead endpoint — models can still be wired up later from the admin settings.
+openwebui:
+  openaiBaseUrl: https://api.openai.com/v1
+  openaiApiKey: ""
+  ollamaBaseUrl: ""
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+# CloudZero injects httpRoute.enabled=true + hostname at install time to publish
+# the app through the shared public-gateway. Defaults keep it internal.
+httpRoute:
+  enabled: false
+  hostname: ""
+  gateway:
+    name: public-gateway
+    namespace: gateway-system
+  path: /
+  forwardedHeaders:
+    enabled: true
+    proto: https
+    host: ""
+    port: "443"
+    ssl: "on"
+  allowGatewayTraffic: true
+  gatewayTrafficPort: 8080
+
+persistence:
+  enabled: true
+  storageClass: ""
+  data:
+    accessMode: ReadWriteOnce
+    size: 5Gi
+
+podAnnotations: {}
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 512Mi
+  limits:
+    cpu: "2"
+    memory: 2Gi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

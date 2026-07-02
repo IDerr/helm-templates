@@ -1,0 +1,128 @@
+apiVersion: catalog.cloudzero.io/v1
+kind: AppDefinition
+metadata:
+  name: openwebui
+  version: 1.0.0
+spec:
+  display:
+    title: Open WebUI
+    summary: Self-hosted AI chat interface for OpenAI-compatible APIs and Ollama backends.
+    categories:
+      - ai
+      - chat
+      - web
+  source:
+    repoURL: https://github.com/IDerr/helm-templates.git
+    path: charts/openwebui
+    targetRevision: main
+  defaults:
+    replicaCount: 1
+    openwebui:
+      openaiBaseUrl: https://api.openai.com/v1
+      openaiApiKey: ""
+      ollamaBaseUrl: ""
+    persistence:
+      enabled: true
+      data:
+        size: 5Gi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        cpu: "2"
+        memory: 2Gi
+  install:
+    fields:
+      - key: openaiBaseUrl
+        type: string
+        label: OpenAI-compatible API base URL
+        section: Model provider
+        default: https://api.openai.com/v1
+        maxLength: 256
+      - key: openaiApiKey
+        type: password
+        label: API key
+        description: Leave empty to skip the OpenAI-compatible provider.
+        section: Model provider
+        default: ""
+        maxLength: 256
+      - key: ollamaBaseUrl
+        type: string
+        label: Ollama base URL
+        description: "Optional, e.g. http://<vm-ip>:11434 for an Ollama running in a VM."
+        section: Model provider
+        default: ""
+        maxLength: 256
+      - key: dataSize
+        type: string
+        label: Data storage size
+        section: Storage
+        default: 5Gi
+        required: true
+        pattern: "^[0-9]+(Mi|Gi)$"
+      - key: memoryLimit
+        type: string
+        label: Memory limit
+        section: Resources
+        default: 2Gi
+        enum: ["1Gi", "2Gi", "4Gi"]
+    values:
+      - from: fields.openaiBaseUrl
+        to: openwebui.openaiBaseUrl
+      - from: fields.openaiApiKey
+        to: openwebui.openaiApiKey
+      - from: fields.ollamaBaseUrl
+        to: openwebui.ollamaBaseUrl
+      - from: fields.dataSize
+        to: persistence.data.size
+      - from: fields.memoryLimit
+        to: resources.limits.memory
+  edit:
+    fields:
+      - key: openaiBaseUrl
+        type: string
+        label: OpenAI-compatible API base URL
+        section: Model provider
+        default: https://api.openai.com/v1
+        maxLength: 256
+      - key: openaiApiKey
+        type: password
+        label: API key
+        description: Leave empty to skip the OpenAI-compatible provider.
+        section: Model provider
+        default: ""
+        maxLength: 256
+      - key: ollamaBaseUrl
+        type: string
+        label: Ollama base URL
+        description: "Optional, e.g. http://<vm-ip>:11434 for an Ollama running in a VM."
+        section: Model provider
+        default: ""
+        maxLength: 256
+      - key: dataSize
+        type: string
+        label: Data storage size
+        section: Storage
+        default: 5Gi
+        required: true
+        pattern: "^[0-9]+(Mi|Gi)$"
+      - key: memoryLimit
+        type: string
+        label: Memory limit
+        section: Resources
+        default: 2Gi
+        enum: ["1Gi", "2Gi", "4Gi"]
+    values:
+      - from: fields.openaiBaseUrl
+        to: openwebui.openaiBaseUrl
+      - from: fields.openaiApiKey
+        to: openwebui.openaiApiKey
+      - from: fields.ollamaBaseUrl
+        to: openwebui.ollamaBaseUrl
+      - from: fields.dataSize
+        to: persistence.data.size
+      - from: fields.memoryLimit
+        to: resources.limits.memory
+  requires: []
+  wiring: {}
