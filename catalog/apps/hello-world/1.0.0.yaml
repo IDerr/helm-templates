@@ -21,32 +21,83 @@ spec:
       heading: Hello from CloudZero Apps
       body: This private app was installed through the CloudZero marketplace.
       accentColor: "#2563eb"
-  schema:
-    type: object
-    properties:
-      page:
-        type: object
-        title: Page
-        properties:
-          title:
-            type: string
-            title: Browser title
-            default: Hello from CloudZero
-            maxLength: 80
-          heading:
-            type: string
-            title: Heading
-            default: Hello from CloudZero Apps
-            maxLength: 120
-          body:
-            type: string
-            title: Body
-            default: This private app was installed through the CloudZero marketplace.
-            maxLength: 240
-          accentColor:
-            type: string
-            title: Accent color
-            default: "#2563eb"
-            pattern: "^#[0-9a-fA-F]{6}$"
+  install:
+    fields:
+      - key: pageTitle
+        type: string
+        label: Browser title
+        section: Page
+        default: Hello from CloudZero
+        required: true
+        minLength: 1
+        maxLength: 80
+      - key: pageHeading
+        type: string
+        label: Heading
+        section: Page
+        default: Hello from CloudZero Apps
+        required: true
+        minLength: 1
+        maxLength: 120
+      - key: pageBody
+        type: string
+        label: Body
+        section: Page
+        default: This private app was installed through the CloudZero marketplace.
+        maxLength: 240
+      - key: pageAccentColor
+        type: string
+        label: Accent color
+        section: Page
+        default: "#2563eb"
+        pattern: "^#[0-9a-fA-F]{6}$"
+    values:
+      - from: fields.pageTitle
+        to: page.title
+      - from: fields.pageHeading
+        to: page.heading
+      - from: fields.pageBody
+        to: page.body
+      - from: fields.pageAccentColor
+        to: page.accentColor
+  edit:
+    fields:
+      - key: pageTitle
+        type: string
+        label: Browser title
+        section: Page
+        default: Hello from CloudZero
+        required: true
+        minLength: 1
+        maxLength: 80
+      - key: pageHeading
+        type: string
+        label: Heading
+        section: Page
+        default: Hello from CloudZero Apps
+        required: true
+        minLength: 1
+        maxLength: 120
+      - key: pageBody
+        type: string
+        label: Body
+        section: Page
+        default: This private app was installed through the CloudZero marketplace.
+        maxLength: 240
+      - key: pageAccentColor
+        type: string
+        label: Accent color
+        section: Page
+        default: "#2563eb"
+        pattern: "^#[0-9a-fA-F]{6}$"
+    values:
+      - from: fields.pageTitle
+        to: page.title
+      - from: fields.pageHeading
+        to: page.heading
+      - from: fields.pageBody
+        to: page.body
+      - from: fields.pageAccentColor
+        to: page.accentColor
   requires: []
   wiring: {}

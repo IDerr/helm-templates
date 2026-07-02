@@ -20,33 +20,49 @@ spec:
     opencloud:
       adminPassword: admin
       checkForUpdates: false
-  schema:
-    type: object
-    properties:
-      opencloud:
-        type: object
-        title: OpenCloud
-        properties:
-          adminPassword:
-            type: string
-            title: Initial admin password
-            default: admin
-            minLength: 5
-            maxLength: 128
-          createDemoUsers:
-            type: boolean
-            title: Create demo users
-            default: false
-      persistence:
-        type: object
-        title: Storage
-        properties:
-          data:
-            type: object
-            properties:
-              size:
-                type: string
-                title: Data volume size
-                default: 10Gi
+  install:
+    fields:
+      # Applied only at first IDM initialization — install-only on purpose:
+      # changing them on an existing install has no effect, so they are not
+      # offered in the edit form.
+      - key: adminPassword
+        type: password
+        label: Initial admin password
+        section: OpenCloud
+        default: admin
+        required: true
+        minLength: 5
+        maxLength: 128
+      - key: createDemoUsers
+        type: boolean
+        label: Create demo users
+        section: OpenCloud
+        default: false
+      - key: dataSize
+        type: string
+        label: Data volume size
+        section: Storage
+        default: 10Gi
+        required: true
+        pattern: "^[0-9]+(Mi|Gi)$"
+    values:
+      - from: fields.adminPassword
+        to: opencloud.adminPassword
+      - from: fields.createDemoUsers
+        to: opencloud.createDemoUsers
+      - from: fields.dataSize
+        to: persistence.data.size
+  edit:
+    fields:
+      - key: dataSize
+        type: string
+        label: Data volume size
+        section: Storage
+        default: 10Gi
+        required: true
+        pattern: "^[0-9]+(Mi|Gi)$"
+    values:
+      - from: fields.dataSize
+        to: persistence.data.size
   requires: []
   wiring: {}
